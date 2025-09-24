@@ -1,0 +1,82 @@
+{
+  "summary": {
+    "total_tests": 3,
+    "passed_tests": 3,
+    "failed_tests": 0,
+    "tests_with_warnings": 0,
+    "success_rate": 100.0
+  },
+  "issues": {
+    "total_errors": 0,
+    "total_warnings": 0,
+    "anomalies_detected": 2
+  },
+  "performance_metrics": {
+    "average_execution_time": 2.71476157506307,
+    "average_memory_usage_mb": 6908.962239583333,
+    "average_cpu_usage_percent": 87.5
+  },
+  "detailed_results": [
+    {
+      "test_name": "inference_load_test_test_model",
+      "status": "passed",
+      "execution_time": 0.4491281509399414,
+      "memory_usage_mb": 7513.13671875,
+      "cpu_usage_percent": 83.1,
+      "error_count": 0,
+      "warning_count": 0,
+      "timestamp": "2025-09-22T23:06:43.929677"
+    },
+    {
+      "test_name": "memory_stress_test",
+      "status": "passed",
+      "execution_time": 7.527563095092773,
+      "memory_usage_mb": 6590.9921875,
+      "cpu_usage_percent": 81.8,
+      "error_count": 0,
+      "warning_count": 0,
+      "timestamp": "2025-09-22T23:06:51.457726"
+    },
+    {
+      "test_name": "feature_engineering_stress_test",
+      "status": "passed",
+      "execution_time": 0.16759347915649414,
+      "memory_usage_mb": 6622.7578125,
+      "cpu_usage_percent": 97.6,
+      "error_count": 0,
+      "warning_count": 0,
+      "timestamp": "2025-09-22T23:06:51.626064"
+    }
+  ],
+  "anomalies": [
+    {
+      "event_type": "high_memory_usage",
+      "severity": "medium",
+      "description": "Memory usage: 93.5%",
+      "component": "system",
+      "timestamp": "2025-09-22T23:06:44.444360",
+      "recommendations": [
+        "Implement memory optimization strategies",
+        "Review data caching mechanisms",
+        "Consider memory-efficient model architectures"
+      ]
+    },
+    {
+      "event_type": "high_memory_usage",
+      "severity": "medium",
+      "description": "Memory usage: 99.4%",
+      "component": "system",
+      "timestamp": "2025-09-22T23:06:50.455491",
+      "recommendations": [
+        "Implement memory optimization strategies",
+        "Review data caching mechanisms",
+        "Consider memory-efficient model architectures"
+      ]
+    }
+  ],
+  "recommendations": [
+    "Investigate detected anomalies and implement corrective measures",
+    "Consider memory optimization strategies for large-scale deployment",
+    "Monitor CPU usage under load and consider scaling strategies"
+  ]
+}

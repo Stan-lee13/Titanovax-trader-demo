@@ -1,0 +1,45 @@
+{
+  "model_weights": {
+    "xgboost": 0.4,
+    "transformer": 0.3,
+    "technical": 0.2,
+    "rl": 0.1
+  },
+  "regime_adjustments": {
+    "trend": {
+      "xgboost": 1.0,
+      "transformer": 1.2,
+      "technical": 0.8,
+      "rl": 1.0
+    },
+    "range": {
+      "xgboost": 1.0,
+      "transformer": 0.8,
+      "technical": 1.2,
+      "rl": 1.0
+    },
+    "volatile": {
+      "xgboost": 1.0,
+      "transformer": 1.0,
+      "technical": 0.6,
+      "rl": 1.4
+    },
+    "crisis": {
+      "xgboost": 0.8,
+      "transformer": 0.6,
+      "technical": 0.4,
+      "rl": 1.6
+    }
+  },
+  "calibration_thresholds": {
+    "min_confidence": 0.6,
+    "high_confidence": 0.8,
+    "action_threshold": 0.65
+  },
+  "risk_multipliers": {
+    "normal": 1.0,
+    "elevated": 0.7,
+    "high": 0.4,
+    "crisis": 0.1
+  }
+}

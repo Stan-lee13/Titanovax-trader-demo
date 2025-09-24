@@ -1,0 +1,17 @@
+{
+  "metrics_collection_interval": 30,
+  "alert_check_interval": 60,
+  "anomaly_detection_enabled": true,
+  "self_healing_enabled": true,
+  "telegram_alerts_enabled": true,
+  "email_alerts_enabled": false,
+  "dashboard_enabled": true,
+  "log_level": "INFO",
+  "alert_thresholds": {
+    "cpu_percent": 85,
+    "memory_percent": 80,
+    "disk_percent": 90,
+    "error_rate_percent": 5,
+    "response_time_ms": 1000
+  }
+}

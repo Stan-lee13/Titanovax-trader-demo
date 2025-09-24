@@ -1,0 +1,10 @@
+{
+  "latency_threshold_ms": 50,
+  "spread_threshold_pips": 2.0,
+  "slippage_tolerance_pips": 1.5,
+  "probe_sample_size": 10,
+  "health_decay_hours": 1,
+  "min_health_score": 0.7,
+  "scalping_enabled": true,
+  "adaptive_mode": true
+}

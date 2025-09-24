@@ -1,0 +1,95 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+titanovax_temp.db
+notification_buffer.db
+
+# Logs
+*.log
+logs/
+data/logs/
+
+# Environment and sensitive files
+.env
+.env.local
+.env.*.local
+config/secrets.json
+
+# Python cache
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Redis
+dump.rdb
+
+# Model files (large binary files)
+models/*.pkl
+models/*.h5
+models/*.joblib
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+
+# Backup files
+*.bak
+*.backup
+
+# Assessment reports (generated files)
+enhanced_assessment_*.json
+diagnostic_report_*.json
+
+# MT5 files (platform specific)
+*.ex5
+*.mq5
+*.mqh
+
+# Docker volumes
+docker/volumes/

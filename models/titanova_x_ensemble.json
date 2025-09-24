@@ -1,0 +1,212 @@
+{
+  "model_name": "TitanovaX Ensemble v1.0",
+  "version": "1.0.0",
+  "description": "Advanced ensemble trading model combining multiple ML algorithms for high-frequency scalping",
+  "created_date": "2024-01-15",
+  "last_updated": "2024-01-15",
+  "ensemble_components": {
+    "primary_models": [
+      {
+        "name": "LSTM_Scalp_Predictor",
+        "type": "lstm",
+        "version": "1.2.0",
+        "description": "Long Short-Term Memory network for price movement prediction",
+        "input_features": [
+          "price_momentum_5m", "volume_surge", "spread_anomaly", 
+          "order_book_imbalance", "volatility_regime", "support_resistance_break"
+        ],
+        "output_features": ["price_direction_next_5m", "confidence_score"],
+        "architecture": {
+          "layers": [64, 32, 16],
+          "dropout": 0.2,
+          "sequence_length": 60,
+          "batch_size": 32
+        },
+        "performance_metrics": {
+          "accuracy": 0.847,
+          "precision": 0.823,
+          "recall": 0.856,
+          "f1_score": 0.839,
+          "sharpe_ratio": 2.34,
+          "max_drawdown": 0.08
+        },
+        "model_file": "models/lstm_scalp_predictor.h5",
+        "preprocessing_pipeline": "pipelines/lstm_preprocessing.pkl"
+      },
+      {
+        "name": "XGBoost_Momentum_Classifier",
+        "type": "xgboost",
+        "version": "1.1.0",
+        "description": "Extreme Gradient Boosting for momentum classification",
+        "input_features": [
+          "rsi_14", "macd_signal", "bollinger_position", "volume_profile",
+          "market_microstructure", "liquidity_depth", "execution_cost_estimate"
+        ],
+        "output_features": ["momentum_class", "probability_scores"],
+        "hyperparameters": {
+          "n_estimators": 500,
+          "max_depth": 8,
+          "learning_rate": 0.1,
+          "subsample": 0.8,
+          "colsample_bytree": 0.8
+        },
+        "performance_metrics": {
+          "accuracy": 0.879,
+          "precision": 0.867,
+          "recall": 0.891,
+          "f1_score": 0.879,
+          "auc_roc": 0.934
+        },
+        "model_file": "models/xgboost_momentum_classifier.pkl",
+        "feature_importance": "models/xgboost_feature_importance.json"
+      },
+      {
+        "name": "Transformer_Market_Sentiment",
+        "type": "transformer",
+        "version": "1.0.0",
+        "description": "Transformer-based model for market sentiment analysis",
+        "input_features": [
+          "news_sentiment_score", "social_media_sentiment", "options_flow",
+          "institutional_activity", "market_correlation_matrix", "economic_indicators"
+        ],
+        "output_features": ["sentiment_direction", "sentiment_strength"],
+        "architecture": {
+          "num_heads": 8,
+          "num_layers": 6,
+          "d_model": 256,
+          "dff": 1024,
+          "maximum_position_encoding": 1000
+        },
+        "performance_metrics": {
+          "accuracy": 0.812,
+          "precision": 0.798,
+          "recall": 0.834,
+          "f1_score": 0.815
+        },
+        "model_file": "models/transformer_sentiment_model.pth",
+        "tokenizer": "models/sentiment_tokenizer.pkl"
+      }
+    ],
+    "ensemble_weights": {
+      "LSTM_Scalp_Predictor": 0.4,
+      "XGBoost_Momentum_Classifier": 0.35,
+      "Transformer_Market_Sentiment": 0.25
+    },
+    "dynamic_weighting": {
+      "enabled": true,
+      "adaptation_period": "15m",
+      "performance_window": "1h",
+      "weight_adjustment_threshold": 0.05
+    }
+  },
+  "risk_management": {
+    "position_sizing": {
+      "base_risk_per_trade": 0.01,
+      "max_position_size": 0.05,
+      "volatility_adjusted_sizing": true,
+      "correlation_adjusted_sizing": true
+    },
+    "stop_loss": {
+      "dynamic_sl_enabled": true,
+      "sl_multiplier": 1.5,
+      "max_sl_pips": 50,
+      "trailing_sl_enabled": true,
+      "trailing_sl_activation": 10
+    },
+    "take_profit": {
+      "dynamic_tp_enabled": true,
+      "risk_reward_ratio": 2.0,
+      "partial_tp_levels": [0.5, 0.75, 1.0],
+      "breakeven_sl_at": 0.5
+    },
+    "drawdown_limits": {
+      "daily_max_drawdown": 0.05,
+      "weekly_max_drawdown": 0.10,
+      "monthly_max_drawdown": 0.15,
+      "emergency_stop_at": 0.20
+    }
+  },
+  "trading_parameters": {
+    "timeframes": ["1m", "5m", "15m"],
+    "trading_sessions": ["london", "new_york", "tokyo"],
+    "instrument_focus": ["EURUSD", "GBPUSD", "USDJPY", "XAUUSD", "BTCUSD"],
+    "spread_filter_max": 2.0,
+    "slippage_tolerance": 0.5,
+    "min_liquidity_threshold": 1000000
+  },
+  "market_conditions": {
+    "high_volatility_threshold": 0.02,
+    "low_volatility_threshold": 0.005,
+    "trend_strength_min": 0.6,
+    "range_bound_threshold": 0.01,
+    "news_avoidance_window": "30m",
+    "economic_calendar_filter": true
+  },
+  "execution_parameters": {
+    "order_types": ["market", "limit", "stop"],
+    "execution_algorithms": ["twap", "vwap", "iceberg"],
+    "latency_requirements": {
+      "max_acceptable_latency": 100,
+      "target_latency": 50,
+      "failover_latency": 200
+    },
+    "liquidity_optimization": {
+      "smart_order_routing": true,
+      "dark_pool_access": false,
+      "internalization_enabled": true
+    }
+  },
+  "performance_monitoring": {
+    "metrics_tracked": [
+      "sharpe_ratio", "sortino_ratio", "max_drawdown", "win_rate",
+      "profit_factor", "average_win", "average_loss", "expectancy",
+      "trade_duration", "fill_rate", "slippage_analysis"
+    ],
+    "reporting_frequency": "daily",
+    "benchmark_comparison": true,
+    "attribution_analysis": true
+  },
+  "model_validation": {
+    "backtesting": {
+      "period": "2020-2024",
+      "data_frequency": "1m",
+      "out_of_sample_period": "0.3",
+      "walk_forward_analysis": true,
+      "monte_carlo_simulations": 1000
+    },
+    "forward_testing": {
+      "paper_trading_period": "3m",
+      "live_testing_period": "1m",
+      "minimum_trades_required": 100,
+      "statistical_significance": 0.95
+    },
+    "performance_thresholds": {
+      "minimum_sharpe_ratio": 1.5,
+      "maximum_drawdown": 0.15,
+      "minimum_win_rate": 0.55,
+      "minimum_profit_factor": 1.3
+    }
+  },
+  "deployment_config": {
+    "environment": "production",
+    "model_serving": {
+      "framework": "tensorflow_serving",
+      "batch_size": 32,
+      "inference_timeout": 100,
+      "auto_scaling": true,
+      "load_balancing": "round_robin"
+    },
+    "monitoring": {
+      "model_drift_detection": true,
+      "prediction_latency_monitoring": true,
+      "accuracy_tracking": true,
+      "data_quality_monitoring": true
+    },
+    "update_schedule": {
+      "model_retraining": "weekly",
+      "hyperparameter_optimization": "monthly",
+      "feature_engineering_update": "bi-weekly",
+      "strategy_optimization": "quarterly"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "regime_thresholds": {
+    "trend_min_adx": 25,
+    "range_max_adx": 20,
+    "range_max_bb_width": 0.02,
+    "volatile_min_volatility": 0.005,
+    "crisis_min_volatility": 0.01,
+    "crisis_volume_spike_threshold": 3.0,
+    "news_impact_threshold": 0.3
+  },
+  "confidence_weights": {
+    "price_action": 0.4,
+    "technical_indicators": 0.3,
+    "volume_analysis": 0.2,
+    "external_factors": 0.1
+  },
+  "history_length_minutes": 60,
+  "update_frequency_seconds": 30
+}

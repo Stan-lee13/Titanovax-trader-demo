@@ -1,0 +1,28 @@
+{
+  "monitor_interval_seconds": 10,
+  "health_check_interval_seconds": 30,
+  "auto_restart_enabled": true,
+  "quarantine_duration_minutes": 5,
+  "max_consecutive_failures": 3,
+  "services": {
+    "ml_brain": {
+      "command": ["python", "-m", "ml_brain.inference.onnx_server"],
+      "health_check_url": "http://localhost:8000/health",
+      "health_check_interval": 30,
+      "max_restarts": 5,
+      "restart_delay": 60
+    },
+    "orchestrator": {
+      "command": ["python", "-m", "orchestration.decision_engine"],
+      "health_check_url": "http://localhost:8001/health",
+      "health_check_interval": 30,
+      "max_restarts": 3,
+      "restart_delay": 120
+    }
+  },
+  "system_health_thresholds": {
+    "cpu_percent": 80.0,
+    "memory_percent": 85.0,
+    "disk_percent": 90.0
+  }
+}

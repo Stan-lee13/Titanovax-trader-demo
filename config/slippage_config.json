@@ -1,0 +1,14 @@
+{
+  "update_frequency_minutes": 5,
+  "min_observations_for_model": 50,
+  "learning_rate": 0.1,
+  "max_slippage_tolerance_pips": 5.0,
+  "model_persistence_enabled": true,
+  "condition_multipliers": {
+    "normal": 1.0,
+    "wide_spread": 1.5,
+    "high_volatility": 2.0,
+    "news_impact": 3.0,
+    "low_liquidity": 2.5
+  }
+}

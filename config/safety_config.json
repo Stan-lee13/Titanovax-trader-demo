@@ -1,0 +1,34 @@
+{
+  "max_drawdown_pct": 5.0,
+  "max_daily_loss_pct": 2.0,
+  "max_position_size": 100000.0,
+  "max_leverage": 10.0,
+  "max_open_positions": 10,
+  "max_slippage_pct": 0.5,
+  "max_latency_ms": 1000,
+  "circuit_breaker_threshold": 3.0,
+  "emergency_stop_enabled": true,
+  "kill_switch_timeout_seconds": 3600,
+  "emergency_contacts": [
+    "admin@titanovax.com",
+    "risk@titanovax.com"
+  ],
+  "regulatory_limits": {
+    "max_exposure_per_symbol": 0.1,
+    "max_total_exposure": 0.5,
+    "min_margin_requirement": 0.05,
+    "max_concentration_risk": 0.2
+  },
+  "anomaly_detection": {
+    "price_change_threshold": 0.05,
+    "volume_spike_threshold": 2.0,
+    "volatility_threshold": 0.03,
+    "correlation_break_threshold": 0.8
+  },
+  "circuit_breaker_config": {
+    "activation_threshold": 0.03,
+    "cooldown_period_seconds": 300,
+    "auto_reset_enabled": true,
+    "manual_review_required": true
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "timestamp": "2025-09-22T18:56:22.434717",
+  "project_structure": {
+    "config": true,
+    "models": true,
+    "ml-brain": true,
+    "mt5-executor": true,
+    "monitoring": true,
+    "tests": true,
+    "data": true,
+    "logs": true,
+    "docker": true
+  },
+  "models": [
+    true,
+    {
+      "xgboost_market_predictor.json": true,
+      "xgboost_metadata.json": true,
+      "transformer_config.json": true,
+      "transformer_metadata.json": true,
+      "rl_policy.json": true,
+      "rl_metadata.json": true,
+      "ensemble_config.json": true,
+      "ensemble_metadata.json": true,
+      "model_registry.json": true
+    }
+  ],
+  "core_components": [
+    true,
+    {
+      "ConfigManager": true,
+      "MLTrainer": true,
+      "ONNXServer": true,
+      "RiskManager": true,
+      "SignalProcessor": true,
+      "RegimeClassifier": true,
+      "SmartOrderRouter": true,
+      "Watchdog": true
+    }
+  ],
+  "safety_features": [
+    true,
+    {
+      "safety_risk_layer.py": true,
+      "config/risk_config.json": true,
+      "mt5-executor/RiskManager.mqh": true,
+      "watchdog_self_healing.py": true
+    }
+  ],
+  "docker_setup": [
+    true,
+    {
+      "docker-compose.yml": true,
+      "docker/ml-brain/Dockerfile": true,
+      "docker/mt5-executor/Dockerfile": true,
+      "docker/orchestration/Dockerfile": true,
+      "docker/dashboard/Dockerfile": true
+    }
+  ],
+  "monitoring": [
+    true,
+    {
+      "monitoring/prometheus.yml": true,
+      "config/anomaly_config.json": true,
+      "config/ensemble_config.json": true,
+      "config/regime_config.json": true
+    }
+  ],
+  "missing_requirements": {
+    "orchestration_directory": true,
+    "telegram_bot": true,
+    "rag_llm_system": false,
+    "memory_hierarchy": true,
+    "enhanced_cicd": false
+  },
+  "compliance_score": 100.0,
+  "status": "COMPLIANT"
+}

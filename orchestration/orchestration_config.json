@@ -1,0 +1,104 @@
+{
+  "orchestration_engine": {
+    "max_concurrent_trades": 10,
+    "risk_per_trade_pct": 2.0,
+    "max_daily_drawdown_pct": 5.0,
+    "signal_validation": true,
+    "market_data_refresh_ms": 1000,
+    "trade_execution_timeout_ms": 5000,
+    "enable_memory_hierarchy": true,
+    "enable_rag_explanations": true,
+    "enable_telegram_notifications": true
+  },
+  "mt4_mt5_bridge": {
+    "latency_threshold_ms": 100,
+    "spread_threshold_pips": 2.0,
+    "max_slippage_pips": 5.0,
+    "enable_both_platforms": true,
+    "failover_enabled": true,
+    "market_data_symbols": ["EURUSD", "GBPUSD", "USDJPY", "XAUUSD", "BTCUSD"],
+    "connection_retry_attempts": 3,
+    "connection_retry_delay_ms": 5000
+  },
+  "telegram_bot": {
+    "enable_consent_management": true,
+    "enable_real_time_notifications": true,
+    "enable_performance_reporting": true,
+    "enable_risk_alerts": true,
+    "enable_explainability": true,
+    "max_daily_messages": 50,
+    "emergency_stop_enabled": true,
+    "user_data_retention_days": 365
+  },
+  "rag_llm_system": {
+    "embedding_model": "all-MiniLM-L6-v2",
+    "llm_model": "microsoft/DialoGPT-medium",
+    "vector_store_type": "faiss",
+    "max_explanation_length": 1000,
+    "explanation_cache_ttl_hours": 24,
+    "enable_knowledge_updates": true,
+    "knowledge_update_frequency_hours": 168
+  },
+  "memory_hierarchy": {
+    "redis_ttl_seconds": {
+      "trades": 86400,
+      "market_data": 3600,
+      "signals": 7200,
+      "user_data": 604800
+    },
+    "sqlite_retention_days": {
+      "trades": 30,
+      "market_data": 7,
+      "performance_data": 90,
+      "user_activity": 365
+    },
+    "vector_db_dimensions": 384,
+    "max_memory_usage_gb": 2.0
+  },
+  "risk_management": {
+    "max_position_size_pct": 5.0,
+    "max_correlation_exposure_pct": 10.0,
+    "max_daily_trades": 20,
+    "max_concurrent_positions": 5,
+    "stop_loss_default_pct": 2.0,
+    "take_profit_default_pct": 3.0,
+    "enable_trailing_stop": true,
+    "trailing_stop_distance_pct": 1.5
+  },
+  "model_integration": {
+    "ensemble_weights": {
+      "xgboost": 0.35,
+      "transformer": 0.35,
+      "rl_agent": 0.20,
+      "technical_analysis": 0.10
+    },
+    "confidence_threshold": 0.65,
+    "minimum_models_agree": 2,
+    "enable_model_gating": true,
+    "model_performance_tracking": true
+  },
+  "monitoring_and_alerts": {
+    "enable_performance_monitoring": true,
+    "enable_risk_monitoring": true,
+    "enable_system_health_monitoring": true,
+    "alert_thresholds": {
+      "daily_drawdown_pct": 3.0,
+      "hourly_loss_pct": 1.5,
+      "max_spread_pips": 5.0,
+      "max_latency_ms": 200,
+      "model_accuracy_drop_pct": 5.0
+    },
+    "notification_channels": ["telegram", "email", "webhook"],
+    "log_level": "INFO",
+    "log_retention_days": 30
+  },
+  "security_and_compliance": {
+    "enable_encryption": true,
+    "enable_audit_logging": true,
+    "enable_user_consent_tracking": true,
+    "enable_data_anonymization": true,
+    "compliance_reporting": true,
+    "data_retention_days": 2555,
+    "enable_access_controls": true
+  }
+}

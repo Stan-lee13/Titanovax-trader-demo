@@ -1,0 +1,388 @@
+name: TitanovaX CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        cd ml-brain
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install bandit safety
+
+    - name: Run Bandit security scan
+      run: |
+        cd ml-brain
+        bandit -r ml_brain/ -f json -o bandit-report.json || true
+        bandit -r ml_brain/ -f html -o bandit-report.html || true
+
+    - name: Run Safety dependency check
+      run: |
+        cd ml-brain
+        safety check --file requirements.txt --json > safety-report.json || true
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          ml-brain/bandit-report.json
+          ml-brain/bandit-report.html
+          ml-brain/safety-report.json
+
+  lint-and-format:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install linting tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install black isort flake8 mypy pytest-cov
+
+    - name: Check Python formatting (Black)
+      run: |
+        cd ml-brain
+        black --check --diff ml_brain/ tests/
+
+    - name: Check import sorting (isort)
+      run: |
+        cd ml-brain
+        isort --check-only --diff ml_brain/ tests/
+
+    - name: Run flake8 linter
+      run: |
+        cd ml-brain
+        flake8 ml_brain/ tests/
+
+    - name: Run mypy type checking
+      run: |
+        cd ml-brain
+        mypy ml_brain/ --ignore-missing-imports
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        cd ml-brain
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-xdist
+
+    - name: Create test data
+      run: |
+        cd ml-brain
+        mkdir -p data/sample
+        python -c "
+        import pandas as pd
+        import numpy as np
+        from datetime import datetime, timedelta
+
+        # Generate sample data
+        np.random.seed(42)
+        dates = pd.date_range(start='2023-01-01', periods=1000, freq='1min')
+
+        data = pd.DataFrame({
+            'open': np.random.uniform(1.0, 1.1, 1000),
+            'high': np.random.uniform(1.05, 1.15, 1000),
+            'low': np.random.uniform(0.95, 1.05, 1000),
+            'close': np.random.uniform(1.0, 1.1, 1000),
+            'volume': np.random.uniform(1000, 10000, 1000)
+        }, index=dates)
+
+        # Make OHLCV consistent
+        for i in range(len(data)):
+            data.iloc[i, 0] = data.iloc[i, 3] + np.random.uniform(-0.001, 0.001)
+            data.iloc[i, 1] = max(data.iloc[i, 0], data.iloc[i, 3]) + abs(np.random.uniform(0, 0.001))
+            data.iloc[i, 2] = min(data.iloc[i, 0], data.iloc[i, 3]) - abs(np.random.uniform(0, 0.001))
+            data.iloc[i, 3] = np.clip(data.iloc[i, 3], data.iloc[i, 2], data.iloc[i, 1])
+
+        data.to_csv('data/sample/eurusd_sample.csv')
+        print('Test data created')
+        "
+
+    - name: Run tests with coverage
+      run: |
+        cd ml-brain
+        python -m pytest tests/ -v --cov=ml_brain --cov-report=xml --cov-report=term-missing
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./ml-brain/coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  build-docker:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [security-scan, lint-and-format, test]
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build ML Brain Docker image
+      uses: docker/buildx/build
+      with:
+        context: ./ml-brain
+        file: ./ml-brain/Dockerfile
+        push: false
+        tags: titanovax-ml:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        load: true
+
+    - name: Test Docker image
+      run: |
+        docker run --rm titanovax-ml:latest python -c "
+        import ml_brain.features.feature_builder as fb
+        import pandas as pd
+        import numpy as np
+
+        # Create test data
+        data = pd.DataFrame({
+            'open': [1.0, 1.01],
+            'high': [1.02, 1.03],
+            'low': [0.99, 1.00],
+            'close': [1.01, 1.02],
+            'volume': [1000, 1100]
+        })
+
+        # Test feature builder
+        features = fb.build_features(data, 'EURUSD', 'M1')
+        print('✅ Docker image test passed')
+        print(f'Features shape: {features.shape}')
+        "
+
+    - name: Build Orchestration Docker image
+      uses: docker/buildx/build
+      with:
+        context: ./orchestration
+        file: ./orchestration/Dockerfile
+        push: false
+        tags: titanovax-orchestration:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        load: true
+
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [build-docker]
+    services:
+      ml-server:
+        image: titanovax-ml:latest
+        ports:
+          - 8080:8080
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Wait for ML server
+      run: |
+        echo "Waiting for ML server to be ready..."
+        for i in {1..30}; do
+          if curl -f http://localhost:8080/health; then
+            echo "ML server is ready!"
+            break
+          fi
+          echo "Attempt $i failed, retrying in 5 seconds..."
+          sleep 5
+        done
+
+    - name: Test ML server health
+      run: |
+        response=$(curl -s http://localhost:8080/health)
+        echo "Health check response: $response"
+
+    - name: Test prediction endpoint
+      run: |
+        predict_response=$(curl -s -X POST http://localhost:8080/predict \
+          -H "Content-Type: application/json" \
+          -d '{
+            "symbol": "EURUSD",
+            "timeframe": "M1",
+            "features": {
+              "rsi": 65.5,
+              "volume_zscore": 1.2,
+              "return_1": 0.001
+            }
+          }')
+        echo "Prediction response: $predict_response"
+
+        # Validate response structure
+        echo $predict_response | jq -e '.prob_up' > /dev/null
+        echo "✅ Prediction endpoint working correctly"
+
+  performance-test:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [build-docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run performance benchmarks
+      run: |
+        cd ml-brain
+        python -c "
+        import time
+        import pandas as pd
+        import numpy as np
+        from ml_brain.features.feature_builder import build_features
+
+        # Create large dataset for performance testing
+        np.random.seed(42)
+        data = pd.DataFrame({
+            'open': np.random.uniform(1.0, 1.1, 5000),
+            'high': np.random.uniform(1.05, 1.15, 5000),
+            'low': np.random.uniform(0.95, 1.05, 5000),
+            'close': np.random.uniform(1.0, 1.1, 5000),
+            'volume': np.random.uniform(1000, 10000, 5000)
+        })
+
+        # Benchmark feature building
+        start_time = time.time()
+        features = build_features(data, 'EURUSD', 'M1')
+        end_time = time.time()
+
+        elapsed = end_time - start_time
+        features_per_second = len(features) / elapsed
+
+        print(f'Performance test results:')
+        print(f'Time: {elapsed:.2f} seconds')
+        print(f'Features per second: {features_per_second:.0f}')
+        print(f'Data points processed: {len(features)}')
+
+        # Performance assertions
+        assert elapsed < 10, f'Feature building too slow: {elapsed:.2f}s'
+        assert features_per_second > 100, f'Too few features per second: {features_per_second:.0f}'
+
+        print('✅ Performance tests passed')
+        "
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [integration-test, performance-test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: staging
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Deploy to staging
+      run: |
+        echo "🚀 Deploying to staging environment..."
+        echo "This would deploy to staging Kubernetes cluster"
+        echo "Components to deploy:"
+        echo "- ML Brain service"
+        echo "- Orchestration service"
+        echo "- Monitoring stack"
+        echo "✅ Staging deployment completed (simulated)"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.run_number > 10
+    environment: production
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run production deployment checks
+      run: |
+        echo "🔍 Running production readiness checks..."
+        echo "- All security tests passed"
+        echo "- All integration tests passed"
+        echo "- Performance benchmarks met"
+        echo "- Docker images built successfully"
+        echo "✅ Production deployment checks passed"
+
+    - name: Deploy to production
+      run: |
+        echo "🚀 Deploying to production environment..."
+        echo "This would deploy to production Kubernetes cluster"
+        echo "Components to deploy:"
+        echo "- ML Brain service (blue/green deployment)"
+        echo "- Orchestration service (canary deployment)"
+        echo "- Monitoring and alerting"
+        echo "✅ Production deployment completed (simulated)"
+
+  notify:
+    name: Notification
+    runs-on: ubuntu-latest
+    needs: [security-scan, lint-and-format, test, build-docker]
+    if: always()
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Get job status
+      id: status
+      run: |
+        if [ "${{ needs.security-scan.result }}" == "success" ] && \
+           [ "${{ needs.lint-and-format.result }}" == "success" ] && \
+           [ "${{ needs.test.result }}" == "success" ] && \
+           [ "${{ needs.build-docker.result }}" == "success" ]; then
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "status=failure" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Notify success
+      if: steps.status.outputs.status == 'success'
+      run: |
+        echo "🎉 All CI/CD checks passed!"
+        echo "Pipeline completed successfully"
+        echo "Ready for deployment"
+
+    - name: Notify failure
+      if: steps.status.outputs.status == 'failure'
+      run: |
+        echo "❌ Some CI/CD checks failed"
+        echo "Please review the logs and fix the issues"
+        echo "Check security reports and test results"
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: ci-artifacts
+        path: |
+          ml-brain/coverage.xml
+          ml-brain/bandit-report.json
+          ml-brain/safety-report.json

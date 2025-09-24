@@ -1,0 +1,142 @@
+{
+  "mt5": {
+    "server": "MetaQuotes-Demo",
+    "login": 12345678,
+    "password": "your_mt5_password",
+    "symbols": [
+      "EURUSD",
+      "GBPUSD", 
+      "USDJPY",
+      "USDCHF",
+      "AUDUSD",
+      "USDCAD",
+      "NZDUSD",
+      "XAUUSD",
+      "XAGUSD",
+      "BTCUSD"
+    ],
+    "timeframes": [
+      "M1",
+      "M5", 
+      "M15",
+      "M30",
+      "H1",
+      "H4",
+      "D1"
+    ],
+    "enable_real_trading": false,
+    "enable_demo_trading": true,
+    "connection_timeout_seconds": 30,
+    "market_data_refresh_ms": 1000,
+    "max_orders_per_symbol": 1,
+    "lot_size_minimum": 0.01,
+    "lot_size_maximum": 100.0,
+    "leverage": 100,
+    "margin_call_level": 100,
+    "stop_out_level": 50
+  },
+  "mt4": {
+    "server": "MetaQuotes-Demo",
+    "login": 87654321,
+    "password": "your_mt4_password",
+    "symbols": [
+      "EURUSD",
+      "GBPUSD",
+      "USDJPY", 
+      "USDCHF",
+      "AUDUSD",
+      "USDCAD",
+      "NZDUSD",
+      "XAUUSD",
+      "XAGUSD"
+    ],
+    "timeframes": [
+      "M1",
+      "M5",
+      "M15", 
+      "M30",
+      "H1",
+      "H4",
+      "D1"
+    ],
+    "enable_real_trading": false,
+    "enable_demo_trading": true,
+    "connection_timeout_seconds": 30,
+    "market_data_refresh_ms": 1000,
+    "max_orders_per_symbol": 1,
+    "lot_size_minimum": 0.01,
+    "lot_size_maximum": 100.0,
+    "leverage": 100,
+    "margin_call_level": 100,
+    "stop_out_level": 50
+  },
+  "bridge_settings": {
+    "latency_threshold_ms": 100,
+    "spread_threshold_pips": 2.0,
+    "max_slippage_pips": 5.0,
+    "enable_latency_monitoring": true,
+    "enable_spread_monitoring": true,
+    "enable_slippage_protection": true,
+    "failover_enabled": true,
+    "primary_platform": "mt5",
+    "backup_platform": "mt4",
+    "auto_switch_on_failure": true,
+    "max_connection_retries": 3,
+    "retry_delay_seconds": 5
+  },
+  "market_data": {
+    "enable_real_time_feed": true,
+    "enable_historical_data": true,
+    "data_retention_hours": 24,
+    "price_precision": 5,
+    "volume_precision": 0,
+    "enable_volume_analysis": true,
+    "enable_order_book_data": false,
+    "enable_level_2_data": false
+  },
+  "order_management": {
+    "enable_market_orders": true,
+    "enable_limit_orders": true,
+    "enable_stop_orders": true,
+    "enable_trailing_stops": true,
+    "enable_oco_orders": true,
+    "enable_oto_orders": true,
+    "default_order_timeout_minutes": 5,
+    "max_order_modifications": 3,
+    "enable_partial_fills": true,
+    "enable_order_cancellation": true
+  },
+  "risk_management": {
+    "enable_pre_trade_validation": true,
+    "enable_position_limits": true,
+    "enable_margin_checks": true,
+    "enable_exposure_monitoring": true,
+    "max_total_exposure_pct": 20.0,
+    "max_symbol_exposure_pct": 10.0,
+    "max_correlated_exposure_pct": 15.0,
+    "enable_auto_stop_loss": true,
+    "enable_auto_take_profit": true,
+    "enable_trailing_stop_loss": true
+  },
+  "performance_monitoring": {
+    "enable_trade_logging": true,
+    "enable_performance_metrics": true,
+    "enable_latency_tracking": true,
+    "enable_slippage_tracking": true,
+    "enable_execution_quality": true,
+    "log_all_market_data": false,
+    "log_all_orders": true,
+    "log_all_trades": true,
+    "performance_report_interval_minutes": 60
+  },
+  "security": {
+    "enable_encryption": true,
+    "enable_secure_connections": true,
+    "enable_certificate_validation": true,
+    "enable_login_protection": true,
+    "max_failed_logins": 5,
+    "enable_ip_whitelisting": false,
+    "allowed_ips": [],
+    "enable_two_factor_auth": false
+  }
+}

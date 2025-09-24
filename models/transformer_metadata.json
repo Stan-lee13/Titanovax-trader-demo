@@ -1,0 +1,22 @@
+{
+  "name": "transformer_regime_classifier",
+  "version": "1.0.0",
+  "description": "Transformer model for market regime classification",
+  "sequence_length": 120,
+  "regimes": [
+    "TREND_UP",
+    "TREND_DOWN",
+    "RANGE",
+    "VOLATILE",
+    "CRISIS"
+  ],
+  "features": [
+    "price_returns",
+    "volume",
+    "volatility",
+    "technical_features"
+  ],
+  "config_path": "models\\transformer_config.json",
+  "weights_path": "models\\transformer_weights.json",
+  "created_at": "2025-09-22T18:53:58.486679"
+}

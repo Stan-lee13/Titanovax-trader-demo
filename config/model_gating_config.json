@@ -1,0 +1,63 @@
+{
+  "canary_config": {
+    "initial_traffic_percentage": 5.0,
+    "traffic_increase_interval_seconds": 300,
+    "traffic_increase_percentage": 5.0,
+    "max_canary_duration_seconds": 3600,
+    "success_criteria": {
+      "min_accuracy": 0.75,
+      "max_error_rate": 0.05,
+      "max_latency_ms": 500,
+      "min_business_metric": 0.8,
+      "min_user_satisfaction": 0.7
+    }
+  },
+  "rollback_thresholds": {
+    "accuracy_drop_percentage": 5.0,
+    "latency_increase_percentage": 50.0,
+    "error_rate_increase_percentage": 100.0,
+    "business_metric_drop_percentage": 10.0,
+    "user_satisfaction_drop_percentage": 15.0
+  },
+  "validation_requirements": {
+    "min_backtest_periods": 252,
+    "min_sharpe_ratio": 1.0,
+    "max_drawdown_percentage": 10.0,
+    "min_win_rate": 0.55,
+    "required_tests": ["unit", "integration", "stress", "regulatory", "security"],
+    "min_accuracy": 0.7,
+    "min_precision": 0.65,
+    "min_recall": 0.6
+  },
+  "monitoring_interval_seconds": 60,
+  "auto_rollback_enabled": true,
+  "manual_approval_required": true,
+  "deployment_strategies": {
+    "canary": {
+      "enabled": true,
+      "default_traffic_percentage": 5.0,
+      "max_duration_minutes": 60
+    },
+    "blue_green": {
+      "enabled": true,
+      "switchover_timeout_seconds": 30
+    },
+    "rolling": {
+      "enabled": true,
+      "batch_size_percentage": 10.0,
+      "rollback_on_failure": true
+    }
+  },
+  "performance_benchmarks": {
+    "baseline_accuracy": 0.75,
+    "baseline_latency_ms": 200,
+    "baseline_error_rate": 0.02,
+    "baseline_business_metric": 0.8
+  },
+  "risk_limits": {
+    "max_var_95": 0.05,
+    "max_expected_shortfall": 0.08,
+    "min_risk_adjusted_return": 0.1,
+    "max_concentration_risk": 0.2
+  }
+}

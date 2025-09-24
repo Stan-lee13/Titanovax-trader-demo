@@ -1,0 +1,21 @@
+{
+  "name": "rl_position_sizer",
+  "version": "1.0.0",
+  "description": "Reinforcement Learning model for position sizing",
+  "state_space": [
+    "portfolio_value",
+    "current_exposure",
+    "volatility",
+    "regime"
+  ],
+  "action_space": [
+    "size_0",
+    "size_25",
+    "size_50",
+    "size_75",
+    "size_100"
+  ],
+  "reward_function": "sharpe_ratio_optimized",
+  "policy_path": "models\\rl_policy.json",
+  "created_at": "2025-09-22T18:53:58.530422"
+}

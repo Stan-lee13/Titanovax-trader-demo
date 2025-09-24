@@ -1,0 +1,23 @@
+[
+  {
+    "symbol": "EURUSD",
+    "action": "BUY",
+    "size": 0.1,
+    "price": 1.085,
+    "timestamp": 1758648404
+  },
+  {
+    "symbol": "GBPUSD",
+    "action": "SELL",
+    "size": 0.2,
+    "price": 1.265,
+    "timestamp": 1758648404
+  },
+  {
+    "symbol": "USDJPY",
+    "action": "BUY",
+    "size": 0.15,
+    "price": 150.25,
+    "timestamp": 1758648404
+  }
+]

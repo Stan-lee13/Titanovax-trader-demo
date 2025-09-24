@@ -1,0 +1,33 @@
+{
+  "models": {
+    "xgboost": {
+      "version": "1.0.0",
+      "status": "active",
+      "created_at": "2025-09-22T18:53:58.182811",
+      "performance": {
+        "accuracy": 0.9295,
+        "train_accuracy": 0.972125
+      }
+    },
+    "transformer": {
+      "version": "1.0.0",
+      "status": "active",
+      "created_at": "2025-09-22T18:53:58.486679",
+      "performance": {
+        "accuracy": 0.0,
+        "train_accuracy": 0.0
+      }
+    },
+    "ensemble": {
+      "version": "1.0.0",
+      "status": "active",
+      "created_at": "2025-09-22T18:53:58.539173",
+      "performance": {
+        "accuracy": 0.0,
+        "train_accuracy": 0.0
+      }
+    }
+  },
+  "created_at": "2025-09-22T18:53:58.552156",
+  "last_updated": "2025-09-22T18:53:58.552170"
+}

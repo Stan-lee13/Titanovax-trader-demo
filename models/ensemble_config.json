@@ -1,0 +1,15 @@
+{
+  "base_models": [
+    "xgboost",
+    "transformer",
+    "technical_rules"
+  ],
+  "weights": {
+    "xgboost": 0.4,
+    "transformer": 0.4,
+    "technical_rules": 0.2
+  },
+  "calibration_method": "platt_scaling",
+  "uncertainty_threshold": 0.15,
+  "created_at": "2025-09-22T18:53:58.535922"
+}

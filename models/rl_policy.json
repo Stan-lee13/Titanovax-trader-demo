@@ -1,0 +1,23 @@
+{
+  "state_space": [
+    "portfolio_value",
+    "current_exposure",
+    "volatility",
+    "regime"
+  ],
+  "action_space": [
+    "size_0",
+    "size_25",
+    "size_50",
+    "size_75",
+    "size_100"
+  ],
+  "policy": {
+    "low_volatility_low_exposure": "size_75",
+    "low_volatility_high_exposure": "size_25",
+    "high_volatility_low_exposure": "size_50",
+    "high_volatility_high_exposure": "size_0",
+    "crisis_regime": "size_0"
+  },
+  "created_at": "2025-09-22T18:53:58.528363"
+}

@@ -1,0 +1,29 @@
+[
+  {
+    "message_id": "1001",
+    "chat_id": "-1001234567890",
+    "user_id": "123456789",
+    "username": "trader_john",
+    "text": "EURUSD looking bullish, RSI at 65",
+    "timestamp": "2025-09-23 12:26:44.176605",
+    "type": "text"
+  },
+  {
+    "message_id": "1002",
+    "chat_id": "-1001234567890",
+    "user_id": "987654321",
+    "username": "analyst_sarah",
+    "text": "Market volatility increasing, expect higher spreads",
+    "timestamp": "2025-09-23 12:26:44.176615",
+    "type": "text"
+  },
+  {
+    "message_id": "1003",
+    "chat_id": "-1001234567890",
+    "user_id": "456789123",
+    "username": "risk_manager",
+    "text": "Daily loss limit reached, stopping trading for today",
+    "timestamp": "2025-09-23 12:26:44.176618",
+    "type": "text"
+  }
+]

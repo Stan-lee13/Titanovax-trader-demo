@@ -1,0 +1,23 @@
+{
+  "name": "xgboost_market_predictor",
+  "version": "1.0.0",
+  "description": "XGBoost model for market direction prediction",
+  "features": [
+    "rsi_14",
+    "macd_signal",
+    "bollinger_position",
+    "volume_ratio",
+    "price_momentum_5d",
+    "volatility_atr",
+    "support_resistance_distance",
+    "market_regime_score",
+    "liquidity_ratio",
+    "sentiment_score"
+  ],
+  "target": "next_return_direction",
+  "train_period": "2020-2024",
+  "train_accuracy": 0.972125,
+  "test_accuracy": 0.9295,
+  "created_at": "2025-09-22T18:53:58.182811",
+  "model_path": "models\\xgboost_market_predictor.json"
+}

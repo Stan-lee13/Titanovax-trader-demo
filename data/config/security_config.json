@@ -1,0 +1,23 @@
+{
+  "hmac_secret_key": "your_secure_hmac_key_here",
+  "jwt_secret_key": "your_secure_jwt_key_here",
+  "rate_limiting_enabled": true,
+  "ip_filtering_enabled": true,
+  "circuit_breaker_enabled": true,
+  "input_validation_enabled": true,
+  "audit_logging_enabled": true,
+  "rate_limits": {
+    "api": {
+      "requests_per_minute": 100,
+      "requests_per_hour": 1000
+    },
+    "trading": {
+      "requests_per_minute": 50,
+      "requests_per_hour": 500
+    },
+    "telegram": {
+      "requests_per_minute": 30,
+      "requests_per_hour": 300
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "ensemble_meta_model",
+  "version": "1.0.0",
+  "description": "Meta-ensemble model combining multiple predictions",
+  "base_models": [
+    "xgboost",
+    "transformer",
+    "technical_rules"
+  ],
+  "calibration_method": "platt_scaling",
+  "uncertainty_estimation": true,
+  "config_path": "models\\ensemble_config.json",
+  "created_at": "2025-09-22T18:53:58.539173"
+}

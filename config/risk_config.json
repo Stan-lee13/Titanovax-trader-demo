@@ -1,0 +1,33 @@
+{
+  "max_loss_per_trade_currency": 100.0,
+  "daily_drawdown_cap_percent": 5.0,
+  "max_open_trades": 5,
+  "max_correlated_exposure_percent": 20.0,
+  "max_total_exposure_percent": 50.0,
+  "min_account_balance_protection_percent": 20.0,
+  "correlation_matrix": {
+    "EURUSD": {
+      "GBPUSD": 0.8,
+      "USDCHF": 0.6,
+      "AUDUSD": 0.7
+    },
+    "GBPUSD": {
+      "EURUSD": 0.8,
+      "USDCHF": 0.5,
+      "AUDUSD": 0.6
+    },
+    "USDCHF": {
+      "EURUSD": 0.6,
+      "GBPUSD": 0.5,
+      "AUDUSD": 0.4
+    },
+    "AUDUSD": {
+      "EURUSD": 0.7,
+      "GBPUSD": 0.6,
+      "USDCHF": 0.4
+    }
+  },
+  "emergency_contacts": ["admin@trading.com"],
+  "auto_recovery_enabled": true,
+  "circuit_breaker_threshold_percent": 10.0
+}

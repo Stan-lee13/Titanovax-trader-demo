@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "timestamp": {
+      "type": "integer",
+      "description": "Unix epoch seconds",
+      "minimum": 1609459200,
+      "maximum": 2147483647
+    },
+    "symbol": {
+      "type": "string",
+      "description": "Trading symbol (e.g., EURUSD)",
+      "minLength": 6,
+      "maxLength": 10,
+      "pattern": "^[A-Z]{6,10}$"
+    },
+    "side": {
+      "type": "string",
+      "enum": ["BUY", "SELL"],
+      "description": "Trade side"
+    },
+    "volume": {
+      "type": "number",
+      "description": "Trade volume",
+      "minimum": 0.01,
+      "maximum": 100.0
+    },
+    "price": {
+      "type": "number",
+      "description": "Optional recommended price",
+      "minimum": 0.00001,
+      "maximum": 100000.0
+    },
+    "model_id": {
+      "type": "string",
+      "description": "Model identifier",
+      "minLength": 1,
+      "maxLength": 50
+    },
+    "model_version": {
+      "type": "string",
+      "description": "Model version",
+      "minLength": 1,
+      "maxLength": 50
+    },
+    "features_hash": {
+      "type": "string",
+      "description": "Short fingerprint of features",
+      "pattern": "^sha256:[a-f0-9]{16}$"
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "description": "Trading reason"
+        },
+        "confidence": {
+          "type": "number",
+          "description": "Model confidence",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": ["reason", "confidence"]
+    }
+  },
+  "required": ["timestamp", "symbol", "side", "volume", "model_id", "model_version", "features_hash", "meta"]
+}

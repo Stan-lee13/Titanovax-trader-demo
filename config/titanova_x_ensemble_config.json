@@ -1,0 +1,228 @@
+{
+  "ensemble_config": {
+    "name": "TitanovaX Ensemble v2.0",
+    "version": "2.0.0",
+    "description": "Advanced ensemble model configuration for TitanovaX trading system",
+    "last_updated": "2024-01-01T00:00:00Z",
+    "models": {
+      "xgboost_market_predictor": {
+        "enabled": true,
+        "weight": 0.35,
+        "priority": 1,
+        "config": {
+          "n_estimators": 1000,
+          "max_depth": 8,
+          "learning_rate": 0.01,
+          "subsample": 0.8,
+          "colsample_bytree": 0.8,
+          "reg_alpha": 0.1,
+          "reg_lambda": 0.1,
+          "early_stopping_rounds": 50,
+          "eval_metric": "logloss"
+        },
+        "features": [
+          "price_sma_ratio", "volume_ratio", "rsi", "macd", "macd_signal",
+          "bollinger_position", "stochastic_k", "adx", "cci", "atr",
+          "williams_r", "momentum", "volatility"
+        ],
+        "target_horizon": "5m",
+        "prediction_type": "classification",
+        "confidence_threshold": 0.65
+      },
+      "transformer_time_series": {
+        "enabled": true,
+        "weight": 0.25,
+        "priority": 2,
+        "config": {
+          "d_model": 128,
+          "nhead": 8,
+          "num_layers": 4,
+          "dropout": 0.1,
+          "sequence_length": 60,
+          "batch_size": 32,
+          "learning_rate": 0.001,
+          "epochs": 100
+        },
+        "features": [
+          "close", "volume", "high", "low", "open",
+          "technical_indicators", "market_regime"
+        ],
+        "target_horizon": "30m",
+        "prediction_type": "classification",
+        "confidence_threshold": 0.70
+      },
+      "lstm_volatility_predictor": {
+        "enabled": true,
+        "weight": 0.20,
+        "priority": 3,
+        "config": {
+          "hidden_size": 64,
+          "num_layers": 2,
+          "dropout": 0.2,
+          "sequence_length": 30,
+          "batch_size": 64,
+          "learning_rate": 0.001,
+          "epochs": 150
+        },
+        "features": [
+          "price_returns", "volume_changes", "volatility_clustering",
+          "regime_indicators", "market_microstructure"
+        ],
+        "target_horizon": "1h",
+        "prediction_type": "regression",
+        "confidence_threshold": 0.75
+      },
+      "random_forest_ensemble": {
+        "enabled": true,
+        "weight": 0.15,
+        "priority": 4,
+        "config": {
+          "n_estimators": 500,
+          "max_depth": 12,
+          "min_samples_split": 10,
+          "min_samples_leaf": 5,
+          "max_features": "sqrt",
+          "bootstrap": true,
+          "oob_score": true
+        },
+        "features": [
+          "technical_features", "fundamental_features", "sentiment_features",
+          "market_regime_features", "risk_features"
+        ],
+        "target_horizon": "24h",
+        "prediction_type": "classification",
+        "confidence_threshold": 0.60
+      },
+      "neural_network_deep": {
+        "enabled": true,
+        "weight": 0.05,
+        "priority": 5,
+        "config": {
+          "hidden_layers": [256, 128, 64, 32],
+          "activation": "relu",
+          "dropout": 0.3,
+          "batch_norm": true,
+          "learning_rate": 0.0001,
+          "batch_size": 128,
+          "epochs": 200
+        },
+        "features": [
+          "multi_timeframe_features", "cross_asset_features", 
+          "macro_features", "alternative_data_features"
+        ],
+        "target_horizon": "1h",
+        "prediction_type": "classification",
+        "confidence_threshold": 0.80
+      }
+    },
+    "ensemble_strategy": {
+      "voting_method": "weighted_confidence",
+      "consensus_threshold": 0.70,
+      "minimum_participation": 3,
+      "confidence_aggregation": "weighted_average",
+      "weight_adjustment": {
+        "enabled": true,
+        "method": "performance_based",
+        "adjustment_frequency": "daily",
+        "lookback_period": 30
+      },
+      "model_gating": {
+        "enabled": true,
+        "confidence_threshold": 0.65,
+        "volatility_filter": true,
+        "regime_filter": true,
+        "correlation_filter": true
+      }
+    },
+    "risk_management": {
+      "position_sizing": {
+        "method": "kelly_criterion",
+        "kelly_fraction": 0.25,
+        "max_position_size": 0.02,
+        "risk_per_trade": 0.01
+      },
+      "stop_loss": {
+        "atr_multiplier": 2.0,
+        "max_loss_percentage": 0.02,
+        "trailing_stop": true
+      },
+      "take_profit": {
+        "risk_reward_ratio": 2.0,
+        "partial_take_profit": true,
+        "take_profit_levels": [0.5, 1.0, 1.5]
+      },
+      "portfolio_constraints": {
+        "max_correlation": 0.7,
+        "max_sector_exposure": 0.3,
+        "max_total_exposure": 0.8,
+        "liquidity_buffer": 0.1
+      }
+    },
+    "feature_engineering": {
+      "technical_indicators": {
+        "enabled": true,
+        "indicators": [
+          "sma", "ema", "wma", "rsi", "macd", "bollinger_bands",
+          "stochastic", "williams_r", "adx", "cci", "atr"
+        ],
+        "timeframes": ["1m", "5m", "15m", "1h", "4h", "1d"]
+      },
+      "market_microstructure": {
+        "enabled": true,
+        "features": [
+          "bid_ask_spread", "order_book_imbalance", "volume_imbalance",
+          "trade_size_distribution", "time_between_trades"
+        ]
+      },
+      "sentiment_analysis": {
+        "enabled": true,
+        "sources": ["news", "social_media", "analyst_reports"],
+        "methods": ["vader", "textblob", "transformer"]
+      },
+      "alternative_data": {
+        "enabled": true,
+        "sources": ["google_trends", "weather_data", "economic_indicators"]
+      }
+    },
+    "performance_monitoring": {
+      "metrics": {
+        "accuracy": true,
+        "precision": true,
+        "recall": true,
+        "f1_score": true,
+        "auc_roc": true,
+        "sharpe_ratio": true,
+        "sortino_ratio": true,
+        "max_drawdown": true,
+        "win_rate": true,
+        "profit_factor": true
+      },
+      "monitoring_frequency": "hourly",
+      "alert_thresholds": {
+        "accuracy_drop": 0.05,
+        "sharpe_ratio_drop": 0.5,
+        "max_drawdown_increase": 0.02
+      }
+    },
+    "model_deployment": {
+      "serving": {
+        "framework": "onnx",
+        "batch_size": 1,
+        "inference_time_limit": 100,
+        "memory_limit": "2GB"
+      },
+      "model_registry": {
+        "enabled": true,
+        "versioning": true,
+        "a_b_testing": true,
+        "rollback_capability": true
+      },
+      "monitoring": {
+        "drift_detection": true,
+        "performance_tracking": true,
+        "anomaly_detection": true,
+        "explainability": true
+      }
+    }
+  }
+}

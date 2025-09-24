@@ -1,0 +1,21 @@
+{
+  "spread_thresholds": {
+    "normal": 2.0,
+    "wide": 5.0,
+    "very_wide": 10.0
+  },
+  "volatility_thresholds": {
+    "normal": 0.001,
+    "high": 0.005,
+    "extreme": 0.01
+  },
+  "twap_segments": {
+    "normal": 5,
+    "wide_spread": 10,
+    "high_volatility": 15
+  },
+  "iceberg_threshold_lots": 1.0,
+  "news_impact_threshold": 0.3,
+  "fallback_timeout_seconds": 30,
+  "segment_delay_range": [5, 30]
+}

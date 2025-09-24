@@ -1,0 +1,9 @@
+{
+  "slippage_threshold_multiplier": 3.0,
+  "latency_threshold_ms": 500,
+  "execution_failure_rate_threshold": 0.1,
+  "spread_spike_threshold_multiplier": 2.0,
+  "volume_anomaly_threshold": 5.0,
+  "price_gap_threshold_pips": 50,
+  "news_impact_threshold": 0.5
+}

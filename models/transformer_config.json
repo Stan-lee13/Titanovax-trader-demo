@@ -1,0 +1,18 @@
+{
+  "model_type": "transformer",
+  "sequence_length": 120,
+  "d_model": 128,
+  "nhead": 8,
+  "num_encoder_layers": 6,
+  "num_decoder_layers": 6,
+  "dim_feedforward": 512,
+  "dropout": 0.1,
+  "regimes": [
+    "TREND_UP",
+    "TREND_DOWN",
+    "RANGE",
+    "VOLATILE",
+    "CRISIS"
+  ],
+  "created_at": "2025-09-22T18:53:58.186272"
+}
