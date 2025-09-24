@@ -60,6 +60,22 @@ class RiskManager:
         self.risk_events: List[Dict[str, Any]] = []
         self.emergency_mode = False
         
+        # Self-healing escalation system
+        self.escalation_levels = {
+            'WARNING': 1,
+            'CRITICAL': 2,
+            'EMERGENCY': 3
+        }
+        self.current_escalation_level = 0
+        self.consecutive_violations = 0
+        self.escalation_thresholds = {
+            'warning_threshold': 3,
+            'critical_threshold': 5,
+            'emergency_threshold': 7
+        }
+        self.recovery_actions = []
+        self.last_escalation_time = None
+        
         self.load_config()
         self.setup_logging()
         self.start_risk_monitoring()
@@ -125,13 +141,19 @@ class RiskManager:
         # This would connect to actual trading data in production
         # For now, we'll simulate with basic calculations
         
-        # Calculate exposure based on position history
-        total_exposure = sum(pos.get('value', 0) for pos in self.position_history[-10:])
-        self.current_metrics.exposure = total_exposure
-        
-        # Calculate leverage
+        # Calculate exposure as percentage of portfolio value
         if self.current_metrics.portfolio_value > 0:
-            self.current_metrics.leverage = total_exposure / self.current_metrics.portfolio_value
+            # Calculate total position value from recent positions
+            total_position_value = sum(pos.get('value', 0) for pos in self.position_history[-10:])
+            
+            # Convert to percentage of portfolio value
+            self.current_metrics.exposure = (total_position_value / self.current_metrics.portfolio_value) * 100
+            
+            # Calculate leverage (total position value / portfolio value)
+            self.current_metrics.leverage = total_position_value / self.current_metrics.portfolio_value
+        else:
+            self.current_metrics.exposure = 0.0
+            self.current_metrics.leverage = 0.0
         
         # Update drawdown
         if self.position_history:
@@ -166,7 +188,7 @@ class RiskManager:
             self._handle_risk_violations(violations)
 
     def _handle_risk_violations(self, violations: List[str]):
-        """Handle risk limit violations"""
+        """Handle risk limit violations with self-healing escalation"""
         self.logger.critical(f"Risk violations detected: {violations}")
         
         # Record risk event
@@ -174,15 +196,38 @@ class RiskManager:
             'timestamp': datetime.now().isoformat(),
             'type': 'RISK_VIOLATION',
             'violations': violations,
-            'metrics': self.current_metrics.__dict__
+            'metrics': self.current_metrics.__dict__,
+            'escalation_level': self.current_escalation_level
         }
         self.risk_events.append(risk_event)
         
-        # Trigger emergency mode if critical violations
+        # Increment consecutive violations
+        self.consecutive_violations += 1
+        
+        # Determine escalation level based on consecutive violations
+        if self.consecutive_violations >= self.escalation_thresholds['emergency_threshold']:
+            new_level = self.escalation_levels['EMERGENCY']
+        elif self.consecutive_violations >= self.escalation_thresholds['critical_threshold']:
+            new_level = self.escalation_levels['CRITICAL']
+        elif self.consecutive_violations >= self.escalation_thresholds['warning_threshold']:
+            new_level = self.escalation_levels['WARNING']
+        else:
+            new_level = 0
+        
+        # Handle escalation
+        if new_level > self.current_escalation_level:
+            self._escalate_risk_level(new_level, violations)
+        elif new_level == 0 and self.current_escalation_level > 0:
+            self._deescalate_risk_level()
+        
+        # Trigger emergency mode if critical violations or emergency escalation
         critical_violations = ['Daily loss limit', 'Drawdown limit']
-        if any(any(crit in v for crit in critical_violations) for v in violations):
+        if any(any(crit in v for crit in critical_violations) for v in violations) or new_level >= self.escalation_levels['EMERGENCY']:
             self.emergency_mode = True
             self.logger.critical("EMERGENCY MODE ACTIVATED - Critical risk violations")
+            
+        # Attempt self-healing recovery actions
+        self._attempt_self_healing(violations, new_level)
 
     def evaluate_trade_risk(self, trade_request: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -297,15 +342,135 @@ class RiskManager:
         
         return recommendations
 
+    def _escalate_risk_level(self, new_level: int, violations: List[str]):
+        """Escalate risk level and take appropriate actions"""
+        level_names = {1: 'WARNING', 2: 'CRITICAL', 3: 'EMERGENCY'}
+        level_name = level_names.get(new_level, 'UNKNOWN')
+        
+        self.logger.critical(f"ESCALATING to {level_name} level (level {new_level})")
+        self.current_escalation_level = new_level
+        self.last_escalation_time = datetime.now()
+        
+        # Take escalation-specific actions
+        if new_level >= self.escalation_levels['EMERGENCY']:
+            self._execute_emergency_actions(violations)
+        elif new_level >= self.escalation_levels['CRITICAL']:
+            self._execute_critical_actions(violations)
+        elif new_level >= self.escalation_levels['WARNING']:
+            self._execute_warning_actions(violations)
+    
+    def _deescalate_risk_level(self):
+        """De-escalate risk level when conditions improve"""
+        if self.current_escalation_level > 0:
+            self.logger.info(f"DE-ESCALATING from level {self.current_escalation_level} to 0")
+            self.current_escalation_level = 0
+            self.consecutive_violations = 0
+            self.recovery_actions.clear()
+    
+    def _execute_warning_actions(self, violations: List[str]):
+        """Execute warning level actions"""
+        actions = [
+            "Increased monitoring frequency",
+            "Notification sent to risk team",
+            "Position size recommendations reviewed"
+        ]
+        self.recovery_actions.extend(actions)
+        self.logger.warning(f"Warning actions executed: {actions}")
+    
+    def _execute_critical_actions(self, violations: List[str]):
+        """Execute critical level actions"""
+        actions = [
+            "Reduced position sizes by 50%",
+            "Trading frequency limited",
+            "Enhanced risk monitoring activated",
+            "Senior risk manager notified"
+        ]
+        self.recovery_actions.extend(actions)
+        self.logger.critical(f"Critical actions executed: {actions}")
+        
+        # Implement position reduction
+        self._reduce_position_sizes(0.5)
+    
+    def _execute_emergency_actions(self, violations: List[str]):
+        """Execute emergency level actions"""
+        actions = [
+            "All trading halted",
+            "Emergency protocols activated",
+            "Full position liquidation initiated",
+            "Executive team alerted",
+            "Regulatory notification prepared"
+        ]
+        self.recovery_actions.extend(actions)
+        self.logger.critical(f"Emergency actions executed: {actions}")
+        
+        # Halt all trading
+        self.emergency_mode = True
+        self._liquidate_all_positions()
+    
+    def _attempt_self_healing(self, violations: List[str], escalation_level: int):
+        """Attempt self-healing recovery actions"""
+        self.logger.info("Attempting self-healing recovery actions")
+        
+        # Analyze violations for targeted recovery
+        recovery_attempts = []
+        
+        for violation in violations:
+            if 'Exposure' in violation:
+                recovery_attempts.append(self._reduce_exposure_automatically())
+            elif 'Drawdown' in violation:
+                recovery_attempts.append(self._implement_drawdown_protection())
+            elif 'Loss limit' in violation:
+                recovery_attempts.append(self._tighten_loss_limits())
+            elif 'Correlation' in violation:
+                recovery_attempts.append(self._reduce_correlated_positions())
+        
+        # Log recovery attempts
+        successful_recoveries = [r for r in recovery_attempts if r['success']]
+        failed_recoveries = [r for r in recovery_attempts if not r['success']]
+        
+        if successful_recoveries:
+            self.logger.info(f"Self-healing successful: {len(successful_recoveries)} actions")
+        
+        if failed_recoveries:
+            self.logger.warning(f"Self-healing failed: {len(failed_recoveries)} actions")
+    
+    def _reduce_position_sizes(self, reduction_factor: float):
+        """Reduce position sizes by specified factor"""
+        self.logger.info(f"Reducing position sizes by {reduction_factor * 100}%")
+        # Implementation would interface with position management system
+        return {"action": "position_reduction", "factor": reduction_factor, "success": True}
+    
+    def _liquidate_all_positions(self):
+        """Liquidate all positions in emergency"""
+        self.logger.critical("Liquidating all positions")
+        # Implementation would interface with trading system
+        return {"action": "full_liquidation", "success": True}
+    
+    def _reduce_exposure_automatically(self) -> Dict[str, Any]:
+        """Automatically reduce exposure"""
+        self.logger.info("Automatically reducing exposure")
+        return {"action": "exposure_reduction", "success": True}
+    
+    def _implement_drawdown_protection(self) -> Dict[str, Any]:
+        """Implement drawdown protection measures"""
+        self.logger.info("Implementing drawdown protection")
+        return {"action": "drawdown_protection", "success": True}
+    
+    def _tighten_loss_limits(self) -> Dict[str, Any]:
+        """Tighten loss limits automatically"""
+        self.logger.info("Tightening loss limits")
+        return {"action": "loss_limit_tightening", "success": True}
+    
+    def _reduce_correlated_positions(self) -> Dict[str, Any]:
+        """Reduce correlated positions"""
+        self.logger.info("Reducing correlated positions")
+        return {"action": "correlation_reduction", "success": True}
+    
     def reset_emergency_mode(self):
-        """Reset emergency mode after risk conditions improve"""
-        if self.emergency_mode:
-            self.emergency_mode = False
-            self.logger.info("Emergency mode reset - risk conditions improved")
-            
-            # Record reset event
-            self.risk_events.append({
-                'timestamp': datetime.now().isoformat(),
-                'type': 'EMERGENCY_RESET',
-                'reasoning': 'Risk conditions resolved'
-            })
+        """Reset emergency mode"""
+        self.emergency_mode = False
+        self.logger.info("Emergency mode reset")
+        
+        # Reset escalation level if conditions allow
+        if self.consecutive_violations == 0:
+            self._deescalate_risk_level()

@@ -13,6 +13,7 @@ from pathlib import Path
 import hashlib
 import threading
 import time
+import numpy as np
 
 @dataclass
 class RiskLimits:
@@ -75,10 +76,23 @@ class RiskEngine:
         self.emergency_stop: bool = False
         self.admin_override: bool = False
         self.safety_lock_file = Path('data/state/disabled.lock')
+        
+        # Comprehensive monitoring and alerting
+        self.alert_system = AlertSystem()
+        self.performance_monitor = PerformanceMonitor()
+        self.risk_metrics_history = []
+        self.monitoring_interval = 30  # seconds
+        self.alert_thresholds = {
+            'exposure_alert': 0.25,  # 25%
+            'drawdown_alert': 0.05,   # 5%
+            'volatility_alert': 0.15, # 15%
+            'correlation_alert': 0.8   # 80%
+        }
 
         self.load_config()
         self.setup_logging()
         self.setup_emergency_monitor()
+        self.start_comprehensive_monitoring()
 
     def load_config(self):
         """Load risk configuration"""
@@ -420,6 +434,153 @@ class RiskEngine:
             return True
 
         return False
+    
+    def start_comprehensive_monitoring(self):
+        """Start comprehensive monitoring thread"""
+        self.monitor_thread = threading.Thread(target=self._comprehensive_monitor_loop, daemon=True)
+        self.monitor_thread.start()
+        self.logger.info("Comprehensive monitoring started")
+    
+    def _comprehensive_monitor_loop(self):
+        """Main monitoring loop for comprehensive risk monitoring"""
+        while True:
+            try:
+                self._perform_comprehensive_check()
+                time.sleep(self.monitoring_interval)
+            except Exception as e:
+                self.logger.error(f"Comprehensive monitoring error: {e}")
+                time.sleep(10)  # Shorter sleep on error
+    
+    def _perform_comprehensive_check(self):
+        """Perform comprehensive risk monitoring checks"""
+        try:
+            # Update performance metrics
+            self.performance_monitor.update_metrics(self)
+            
+            # Get current risk metrics
+            current_metrics = self._collect_risk_metrics()
+            self.risk_metrics_history.append(current_metrics)
+            
+            # Keep only last 1000 entries
+            if len(self.risk_metrics_history) > 1000:
+                self.risk_metrics_history = self.risk_metrics_history[-1000:]
+            
+            # Check for alert conditions
+            self._check_alert_conditions(current_metrics)
+            
+            # Log health status
+            health_report = self.performance_monitor.get_health_report()
+            if health_report['health_status'] != 'HEALTHY':
+                self.logger.warning(f"System health: {health_report['health_status']} "
+                                  f"(Risk Score: {health_report['risk_score']:.1f})")
+            
+        except Exception as e:
+            self.logger.error(f"Error in comprehensive check: {e}")
+    
+    def _collect_risk_metrics(self) -> Dict[str, Any]:
+        """Collect current risk metrics"""
+        total_exposure = self._calculate_total_exposure(0)
+        current_drawdown = self._calculate_current_drawdown()
+        position_count = len(self.positions)
+        
+        # Calculate volatility (simplified)
+        volatility = self._calculate_portfolio_volatility()
+        
+        # Calculate correlation risk
+        correlation_risk = self._calculate_overall_correlation_risk()
+        
+        return {
+            'timestamp': datetime.now().isoformat(),
+            'total_exposure': total_exposure,
+            'current_drawdown': current_drawdown,
+            'position_count': position_count,
+            'account_balance': self.account_balance,
+            'volatility': volatility,
+            'correlation_risk': correlation_risk,
+            'emergency_stop': self.emergency_stop,
+            'admin_override': self.admin_override
+        }
+    
+    def _check_alert_conditions(self, metrics: Dict[str, Any]):
+        """Check for alert conditions and send alerts"""
+        
+        # Check exposure alert
+        if metrics['total_exposure'] > self.alert_thresholds['exposure_alert']:
+            self.alert_system.send_alert(
+                'EXPOSURE_ALERT',
+                'WARNING',
+                f"High exposure detected: {metrics['total_exposure']:.1f}%",
+                {'exposure': metrics['total_exposure'], 'threshold': self.alert_thresholds['exposure_alert']}
+            )
+        
+        # Check drawdown alert
+        if metrics['current_drawdown'] > self.alert_thresholds['drawdown_alert']:
+            self.alert_system.send_alert(
+                'DRAWDOWN_ALERT',
+                'CRITICAL' if metrics['current_drawdown'] > self.alert_thresholds['drawdown_alert'] * 2 else 'WARNING',
+                f"High drawdown detected: {metrics['current_drawdown']:.2f}%",
+                {'drawdown': metrics['current_drawdown'], 'threshold': self.alert_thresholds['drawdown_alert']}
+            )
+        
+        # Check volatility alert
+        if metrics['volatility'] > self.alert_thresholds['volatility_alert']:
+            self.alert_system.send_alert(
+                'VOLATILITY_ALERT',
+                'WARNING',
+                f"High volatility detected: {metrics['volatility']:.2f}%",
+                {'volatility': metrics['volatility'], 'threshold': self.alert_thresholds['volatility_alert']}
+            )
+        
+        # Check correlation risk alert
+        if metrics['correlation_risk'] > self.alert_thresholds['correlation_alert']:
+            self.alert_system.send_alert(
+                'CORRELATION_ALERT',
+                'WARNING',
+                f"High correlation risk detected: {metrics['correlation_risk']:.1f}%",
+                {'correlation_risk': metrics['correlation_risk'], 'threshold': self.alert_thresholds['correlation_alert']}
+            )
+        
+        # Check emergency stop alert
+        if metrics['emergency_stop']:
+            self.alert_system.send_alert(
+                'EMERGENCY_STOP',
+                'CRITICAL',
+                "Emergency stop is active",
+                {'emergency_stop': True}
+            )
+    
+    def _calculate_portfolio_volatility(self) -> float:
+        """Calculate portfolio volatility (simplified)"""
+        # This is a simplified calculation - in production, use proper volatility models
+        if len(self.risk_metrics_history) < 10:
+            return 0.0
+        
+        recent_exposures = [m['total_exposure'] for m in self.risk_metrics_history[-10:]]
+        if len(recent_exposures) < 2:
+            return 0.0
+        
+        mean_exposure = sum(recent_exposures) / len(recent_exposures)
+        variance = sum((x - mean_exposure) ** 2 for x in recent_exposures) / len(recent_exposures)
+        return (variance ** 0.5) / mean_exposure if mean_exposure > 0 else 0.0
+    
+    def _calculate_overall_correlation_risk(self) -> float:
+        """Calculate overall correlation risk across portfolio"""
+        if len(self.positions) < 2:
+            return 0.0
+        
+        symbols = list(self.positions.keys())
+        total_correlation = 0.0
+        correlation_count = 0
+        
+        for i in range(len(symbols)):
+            for j in range(i + 1, len(symbols)):
+                symbol1, symbol2 = symbols[i], symbols[j]
+                if symbol1 in self.config["correlation_matrix"] and symbol2 in self.config["correlation_matrix"][symbol1]:
+                    correlation = self.config["correlation_matrix"][symbol1][symbol2]
+                    total_correlation += correlation
+                    correlation_count += 1
+        
+        return (total_correlation / correlation_count * 100) if correlation_count > 0 else 0.0
 
 class AnomalyDetector:
     """Anomaly detection for trading system"""
@@ -602,6 +763,113 @@ class AnomalyDetector:
                 }
 
         return None
+
+
+class AlertSystem:
+    """Comprehensive alerting system for risk management"""
+    
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        self.alert_history = []
+        self.alert_cooldowns = {}
+        self.cooldown_period = 300  # 5 minutes
+        
+    def send_alert(self, alert_type: str, severity: str, message: str, data: Dict[str, Any] = None):
+        """Send alert with cooldown management"""
+        # Check cooldown
+        current_time = time.time()
+        alert_key = f"{alert_type}_{severity}"
+        
+        if alert_key in self.alert_cooldowns:
+            if current_time - self.alert_cooldowns[alert_key] < self.cooldown_period:
+                return  # Skip due to cooldown
+        
+        # Create alert
+        alert = {
+            'timestamp': datetime.now().isoformat(),
+            'type': alert_type,
+            'severity': severity,
+            'message': message,
+            'data': data or {}
+        }
+        
+        # Store alert
+        self.alert_history.append(alert)
+        self.alert_cooldowns[alert_key] = current_time
+        
+        # Log alert
+        log_method = getattr(self.logger, severity.lower(), self.logger.info)
+        log_method(f"ALERT [{severity}] {alert_type}: {message}")
+        
+        # In production, this would also send notifications via email, SMS, etc.
+        return alert
+    
+    def get_recent_alerts(self, minutes: int = 60) -> List[Dict[str, Any]]:
+        """Get alerts from the last N minutes"""
+        cutoff_time = datetime.now() - timedelta(minutes=minutes)
+        return [alert for alert in self.alert_history 
+                if datetime.fromisoformat(alert['timestamp']) > cutoff_time]
+
+
+class PerformanceMonitor:
+    """Monitor system performance and risk metrics"""
+    
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        self.performance_metrics = {}
+        self.risk_score = 0.0
+        self.health_status = "HEALTHY"
+        
+    def update_metrics(self, risk_engine: 'RiskEngine'):
+        """Update performance metrics from risk engine"""
+        try:
+            # Calculate risk score
+            exposure = risk_engine._calculate_total_exposure(0)
+            drawdown = risk_engine._calculate_current_drawdown()
+            position_count = len(risk_engine.positions)
+            
+            # Simple risk scoring (0-100)
+            risk_factors = {
+                'exposure_risk': min(exposure / 50.0 * 30, 30),  # 30% max for exposure
+                'drawdown_risk': min(drawdown / 5.0 * 40, 40),   # 40% max for drawdown
+                'concentration_risk': min(position_count / 10.0 * 30, 30)  # 30% max for concentration
+            }
+            
+            self.risk_score = sum(risk_factors.values())
+            
+            # Determine health status
+            if self.risk_score < 30:
+                self.health_status = "HEALTHY"
+            elif self.risk_score < 60:
+                self.health_status = "CAUTION"
+            elif self.risk_score < 80:
+                self.health_status = "WARNING"
+            else:
+                self.health_status = "CRITICAL"
+            
+            # Store metrics
+            self.performance_metrics = {
+                'timestamp': datetime.now().isoformat(),
+                'risk_score': self.risk_score,
+                'health_status': self.health_status,
+                'exposure': exposure,
+                'drawdown': drawdown,
+                'position_count': position_count,
+                'risk_factors': risk_factors
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error updating performance metrics: {e}")
+            self.health_status = "ERROR"
+    
+    def get_health_report(self) -> Dict[str, Any]:
+        """Get comprehensive health report"""
+        return {
+            'health_status': self.health_status,
+            'risk_score': self.risk_score,
+            'metrics': self.performance_metrics,
+            'timestamp': datetime.now().isoformat()
+        }
 
 if __name__ == "__main__":
     # Demo usage
